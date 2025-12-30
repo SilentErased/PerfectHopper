@@ -43,8 +43,6 @@ public class PerfectHopper
         }
         return servers;
     }
-
-
     static void Main(string[] args)
     {
         Console.Title = "PerfectHopper v0.1";
@@ -57,6 +55,10 @@ public class PerfectHopper
         {
             if (Render.HopId > 0 && Render.HopId != 3)
             {
+                foreach (var TargetProcess in Process.GetProcessesByName("RobloxPlayerBeta"))
+                {
+                    TargetProcess.Kill();
+                }
                 string TargetName = "";
                 if (Render.HopId == 1)
                 {
@@ -73,7 +75,7 @@ public class PerfectHopper
 
                 foreach (string Id in Servers)
                 {
-                    if (Render.HopId > 0 && Render.HopId != 3) break;
+                    if (Render.HopId <= 0 || Render.HopId == 3) break;
                     Console.WriteLine($"Current Server (JOBID): {Id}");
                     string Uri = "roblox://experiences/start?placeId=1537690962&gameInstanceId=" + Id;
                     Process.Start(new ProcessStartInfo
@@ -82,7 +84,9 @@ public class PerfectHopper
                         UseShellExecute = true
                     });
                     Thread.Sleep(15000);
-                    if (Render.HopId > 0 && Render.HopId != 3) break;
+                    if (Render.HopId <= 0 || Render.HopId == 3) break;
+                    Process[] Test = Process.GetProcessesByName("RobloxPlayerBeta");
+                    if (Test.Length == 0) continue;
                     Console.WriteLine($"Checking if {TargetName} on server.");
                     Console.WriteLine("Step 1/3 (Finding workspace)");
                     RobloxObject DataModel = new RobloxObject(RobloxMemController.GetDataModel());
@@ -116,7 +120,7 @@ public class PerfectHopper
                     }
                     catch
                     {
-                        Console.WriteLine("Empty");
+                        Console.WriteLine("Failed getting childrens");
                         continue;
                     }
                     if (Render.HopId == 0)
@@ -132,6 +136,10 @@ public class PerfectHopper
             }
             if (Render.HopId == 3)
             {
+                foreach (var TargetProcess in Process.GetProcessesByName("RobloxPlayerBeta"))
+                {
+                    TargetProcess.Kill();
+                }
                 Console.WriteLine($"Starting new Searcher hop cycle.");
                 Console.WriteLine("Fetching Servers");
                 var Servers = GetServers().GetAwaiter().GetResult();
@@ -149,6 +157,8 @@ public class PerfectHopper
                     });
                     Thread.Sleep(15000);
                     if (Render.HopId != 3) break;
+                    Process[] Test = Process.GetProcessesByName("RobloxPlayerBeta");
+                    if (Test.Length == 0) continue;
                     Console.WriteLine("Step 1/3 (Finding workspace)");
                     RobloxObject DataModel = new RobloxObject(RobloxMemController.GetDataModel());
                     Console.WriteLine(DataModel.Address.ToString() + " - DataModel Address");
@@ -192,11 +202,7 @@ public class PerfectHopper
                     {
                         break;
                     }
-                    Thread.Sleep(5000);
-                    foreach (var TargetProcess in Process.GetProcessesByName("RobloxPlayerBeta"))
-                    {
-                        TargetProcess.Kill();
-                    }
+                    Thread.Sleep(2000);
                 }
             }
             Thread.Sleep(100);

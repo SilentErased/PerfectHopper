@@ -72,51 +72,6 @@ namespace Memory
                 throw new InvalidOperationException("ReadMemory failed");
             return buffer;
         }
-        public void WriteMemory(long address, byte[] buffer)
-        {
-            VirtualProtectEx(handle, new IntPtr(address), (UIntPtr)buffer.Length, PAGE_EXECUTE_READWRITE, out uint oldProtect);
-
-            if (!WriteProcessMemory(handle, new IntPtr(address), buffer, buffer.Length, out IntPtr bytesWritten)
-                || bytesWritten.ToInt32() != buffer.Length)
-                throw new InvalidOperationException("WriteMemory failed");
-            VirtualProtectEx(handle, new IntPtr(address), (UIntPtr)buffer.Length, oldProtect, out _);
-        }
-
-        public void WriteAddress<T>(long address, T value) where T : struct
-        {
-            int size = Marshal.SizeOf<T>();
-            byte[] buffer;
-            IntPtr ptr = Marshal.AllocHGlobal(size);
-            try
-            {
-                Marshal.StructureToPtr(value, ptr, true);
-                buffer = new byte[size];
-                Marshal.Copy(ptr, buffer, 0, size);
-            }
-            finally
-            {
-                Marshal.FreeHGlobal(ptr);
-            }
-
-            VirtualProtectEx(handle, new IntPtr(address), (UIntPtr)size, PAGE_EXECUTE_READWRITE, out uint oldProtect);
-            bool result = WriteProcessMemory(handle, new IntPtr(address), buffer, size, out IntPtr bytesWritten);
-            VirtualProtectEx(handle, new IntPtr(address), (UIntPtr)size, oldProtect, out _);
-            if (!result || bytesWritten.ToInt32() != size)
-                throw new InvalidOperationException("Write failed");
-        }
-
-        public void WriteString(long address, string value)
-        {
-            byte[] buffer = Encoding.UTF8.GetBytes(value + "\0");
-            int size = buffer.Length;
-            VirtualProtectEx(handle, new IntPtr(address), (UIntPtr)size, PAGE_EXECUTE_READWRITE, out uint oldProtect);
-            bool result = WriteProcessMemory(handle, new IntPtr(address), buffer, size, out IntPtr bytesWritten);
-            VirtualProtectEx(handle, new IntPtr(address), (UIntPtr)size, oldProtect, out _);
-            if (!result || bytesWritten.ToInt32() != size)
-                throw new InvalidOperationException("Write failed");
-        }
-
-
         public IntPtr GetBaseAddress()
         {
             return proc.MainModule.BaseAddress;
@@ -130,21 +85,10 @@ namespace Memory
             return modules;
         }
 
-        public IntPtr AllocateMemory(int size)
-        {
-            return VirtualAllocEx(handle, IntPtr.Zero, (UIntPtr)size, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
-        }
-
-        public bool ProtectMemory(IntPtr address, int size, uint newProtect, out uint oldProtect)
-        {
-            return VirtualProtectEx(handle, address, (UIntPtr)size, newProtect, out oldProtect);
-        }
-
         public int WriteNtMemory(IntPtr address, byte[] buffer)
         {
             return NtWriteVirtualMemory(handle, address, buffer, (uint)buffer.Length, out _);
         }
-
         public string ReadString(long address, int maxLength)
         {
             byte[] buffer = new byte[maxLength];

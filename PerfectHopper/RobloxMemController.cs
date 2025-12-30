@@ -56,21 +56,16 @@ namespace SilentExternal
         public List<RobloxObject> GetChildren()
         {
             List<RobloxObject> ChildrenList = new List<RobloxObject>();
-
             if (Address == UIntPtr.Zero || Address.ToUInt64() < 0x10000)
             {
                 return ChildrenList;
             }
-
             ulong ChildrenStart = Roblox.ReadAddress<ulong>((long)Address + Offsets.Children);
-
             if (ChildrenStart == 0 || ChildrenStart < 0x10000)
             {
                 return ChildrenList;
             }
-
             ulong ChildrenEnd = Roblox.ReadAddress<ulong>((long)ChildrenStart + Offsets.ChildrenEnd);
-
             for (ulong i = Roblox.ReadAddress<ulong>((long)ChildrenStart); i != ChildrenEnd; i += 0x10)
             {
                 ulong ChildAddress = Roblox.ReadAddress<ulong>((long)i);
@@ -80,10 +75,8 @@ namespace SilentExternal
                     ChildrenList.Add(new RobloxObject((UIntPtr)ChildAddress));
                 }
             }
-
             return ChildrenList;
         }
-
         public string Name
         {
             get
@@ -108,7 +101,6 @@ namespace SilentExternal
                 return NameStr;
             }
         }
-
         public UIntPtr FindFirstChild(string ChildName)
         {
             foreach (RobloxObject ChildObj in GetChildren())

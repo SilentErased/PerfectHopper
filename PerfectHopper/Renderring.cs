@@ -111,14 +111,9 @@ Discord webhook");
                 }
                 ImGui.PopStyleColor(2);
             }
-
             ImGui.SameLine();
-            ImGui.TextUnformatted(HopId == 0 ? "Target : nil" :
-                                  HopId == 1 ? "Target : Vicious Bee" :
-                                  HopId == 2 ? "Target : Windy Bee" : "Searcher Mode");
-
+            ImGui.TextUnformatted(HopId == 0 ? "Target : nil" : HopId == 1 ? "Target : Vicious Bee" : HopId == 2 ? "Target : Windy Bee" : "Searcher Mode");
             ImGui.End();
-
             ImGui.PopStyleVar(3);
             ImGui.PopStyleColor(4);
         }
