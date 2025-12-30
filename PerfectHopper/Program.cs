@@ -9,11 +9,21 @@ using System.Numerics;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-
+// @ pls ignore bad / shit code :pleading-face:
 public class PerfectHopper
 {
     static HttpClient Client = new HttpClient();
-
+    static void killeveryrobloxprocess()
+    {
+        List<string> tokill = new List<string>{ "RobloxPlayerBeta", "Bloxstrap", "Fishstrap", "Voidstrap" };
+        foreach (Process TargetProcess in Process.GetProcesses())
+        {
+            if (tokill.Contains(TargetProcess.ProcessName))
+            {
+                TargetProcess.Kill();
+            }
+        }
+    }
     static async Task<List<string>> GetServers()
     {
         List<string> servers = new List<string>();
@@ -55,10 +65,7 @@ public class PerfectHopper
         {
             if (Render.HopId > 0 && Render.HopId != 3)
             {
-                foreach (var TargetProcess in Process.GetProcessesByName("RobloxPlayerBeta"))
-                {
-                    TargetProcess.Kill();
-                }
+                killeveryrobloxprocess();
                 string TargetName = "";
                 if (Render.HopId == 1)
                 {
@@ -75,7 +82,7 @@ public class PerfectHopper
 
                 foreach (string Id in Servers)
                 {
-                    if (Render.HopId <= 0 || Render.HopId == 3) break;
+                    if (Render.HopId <= 0 || Render.HopId == 3) return;
                     Console.WriteLine($"Current Server (JOBID): {Id}");
                     string Uri = "roblox://experiences/start?placeId=1537690962&gameInstanceId=" + Id;
                     Process.Start(new ProcessStartInfo
@@ -83,15 +90,54 @@ public class PerfectHopper
                         FileName = Uri,
                         UseShellExecute = true
                     });
-                    Thread.Sleep(15000);
-                    if (Render.HopId <= 0 || Render.HopId == 3) break;
-                    Process[] Test = Process.GetProcessesByName("RobloxPlayerBeta");
-                    if (Test.Length == 0) continue;
+                    Thread.Sleep(3000);
+                    if (Render.HopId <= 0 || Render.HopId == 3) return;
+                    var sw = Stopwatch.StartNew();
+                    bool loaded = false;
+                    while (sw.Elapsed.TotalSeconds < 15)
+                    {
+                        if (Render.HopId <= 0 || Render.HopId == 3) return;
+                        Process[] procs = Process.GetProcessesByName("RobloxPlayerBeta");
+                        if (procs.Length == 0)
+                        {
+                            Thread.Sleep(500);
+                            continue;
+                        }
+                        try
+                        {
+                            RobloxObject DataModel = new RobloxObject(RobloxMemController.GetDataModel());
+                            if (DataModel == null || DataModel.Address == UIntPtr.Zero)
+                            {
+                                Thread.Sleep(500);
+                                continue;
+                            }
+                            var workspacePtr = DataModel.FindFirstChild("Workspace");
+                            if (workspacePtr == UIntPtr.Zero)
+                            {
+                                Thread.Sleep(500);
+                                continue;
+                            }
+                            loaded = true;
+                            break;
+                        }
+                        catch
+                        {
+                            Thread.Sleep(500);
+                            continue;
+                        }
+                    }
+                    if (!loaded)
+                    {
+                        Console.WriteLine("Failed. Roblox not found");
+                        continue;
+                    }
+                    Thread.Sleep(5000);
+                    if (Render.HopId <= 0 || Render.HopId == 3) return;
                     Console.WriteLine($"Checking if {TargetName} on server.");
                     Console.WriteLine("Step 1/3 (Finding workspace)");
-                    RobloxObject DataModel = new RobloxObject(RobloxMemController.GetDataModel());
-                    Console.WriteLine(DataModel.Address.ToString() + " - DataModel Address");
-                    RobloxObject Workspace = new RobloxObject(DataModel.FindFirstChild("Workspace"));
+                    RobloxObject DataModel2 = new RobloxObject(RobloxMemController.GetDataModel());
+                    Console.WriteLine(DataModel2.Address.ToString() + " - DataModel Address");
+                    RobloxObject Workspace = new RobloxObject(DataModel2.FindFirstChild("Workspace"));
                     Console.WriteLine(Workspace.Address.ToString() + " - Workspace Address");
                     Console.WriteLine("Step 2/3 (Findong Monsters Folder)");
                     RobloxObject Monsters = new RobloxObject(Workspace.FindFirstChild("Monsters"));
@@ -136,10 +182,7 @@ public class PerfectHopper
             }
             if (Render.HopId == 3)
             {
-                foreach (var TargetProcess in Process.GetProcessesByName("RobloxPlayerBeta"))
-                {
-                    TargetProcess.Kill();
-                }
+                killeveryrobloxprocess();
                 Console.WriteLine($"Starting new Searcher hop cycle.");
                 Console.WriteLine("Fetching Servers");
                 var Servers = GetServers().GetAwaiter().GetResult();
@@ -155,7 +198,48 @@ public class PerfectHopper
                         FileName = Uri,
                         UseShellExecute = true
                     });
-                    Thread.Sleep(15000);
+                    Thread.Sleep(3000);
+                    if (Render.HopId <= 0 || Render.HopId == 3) return;
+                    var sw = Stopwatch.StartNew();
+                    bool loaded = false;
+                    while (sw.Elapsed.TotalSeconds < 15)
+                    {
+                        if (Render.HopId <= 0 || Render.HopId == 3) return;
+                        Process[] procs = Process.GetProcessesByName("RobloxPlayerBeta");
+                        if (procs.Length == 0)
+                        {
+                            Thread.Sleep(500);
+                            continue;
+                        }
+                        try
+                        {
+                            RobloxObject DataModelz = new RobloxObject(RobloxMemController.GetDataModel());
+                            if (DataModelz == null || DataModelz.Address == UIntPtr.Zero)
+                            {
+                                Thread.Sleep(500);
+                                continue;
+                            }
+                            var workspacePtr = DataModelz.FindFirstChild("Workspace");
+                            if (workspacePtr == UIntPtr.Zero)
+                            {
+                                Thread.Sleep(500);
+                                continue;
+                            }
+                            loaded = true;
+                            break;
+                        }
+                        catch
+                        {
+                            Thread.Sleep(500);
+                            continue;
+                        }
+                    }
+                    if (!loaded)
+                    {
+                        Console.WriteLine("Failed. Roblox not found");
+                        continue;
+                    }
+                    Thread.Sleep(5000);
                     if (Render.HopId != 3) break;
                     Process[] Test = Process.GetProcessesByName("RobloxPlayerBeta");
                     if (Test.Length == 0) continue;
